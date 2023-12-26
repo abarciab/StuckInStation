@@ -1,0 +1,12 @@
+PLAYER: Hello, how are you
+SPEAKER: Good, how are you
+C) PLAYER : Good : 1
+C) PLAYER : Bad : 2
+
+1) SPEAKER : Damn nice!
+PLAYER: yeahh!
+PLAYER: what're you upto on this train?
+SPEAKER: just on a journey frfr : END
+
+2) SPEAKER : oof
+PLAYER: yeahhh... : END
