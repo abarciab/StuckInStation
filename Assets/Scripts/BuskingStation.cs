@@ -39,6 +39,11 @@ public class BuskingStation : Interactable
     [SerializeField] private float _extraWaitTime = 4;
     private float _waitTimeRemaing;
 
+    [Header("CameraMovement")]
+    [SerializeField] private List<Transform> _camPositions = new List<Transform>();
+    [SerializeField] private float _camMoveTime = 20;
+    private int currentCamPos;
+
     private CameraController _mainCamera;
     private float _runTime;
     private List<Transform> _spawnedNotes = new List<Transform>();
@@ -108,7 +113,7 @@ public class BuskingStation : Interactable
 
 
             if (_spawnedNotes[i] == null) _spawnedNotes.RemoveAt(i);
-            else if (_spawnedNotes[i].localPosition.y < _floor + 11) AutoPlayNote(i);
+            //else if (_spawnedNotes[i].localPosition.y < _floor + 11) AutoPlayNote(i);
             else if (_spawnedNotes[i].localPosition.y < _floor) MissNote(i);
             else _spawnedNotes[i].localPosition += Vector3.down * _noteSpeed * Time.deltaTime;
         }
@@ -193,6 +198,21 @@ public class BuskingStation : Interactable
         SetActiveState(true);
         FindObjectOfType<MusicPlayer>().FadeOutMusic(0.5f);
         ResetSong();
+        StopAllCoroutines();
+        StartCoroutine(CameraMove(0));
+    }
+
+    private IEnumerator CameraMove(int targetIndex)
+    {
+        Vector3 startPos = _altCamera.transform.position;
+        float timePassed = 0;
+        while (timePassed < _camMoveTime) {
+            float progress = timePassed / _camMoveTime;
+            _altCamera.transform.position = Vector3.Lerp(startPos, _camPositions[targetIndex].position, progress);
+            timePassed += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        StartCoroutine(CameraMove(targetIndex + 1 < _camPositions.Count ? targetIndex + 1 : 0));
     }
 
     private void ResetSong()

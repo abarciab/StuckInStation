@@ -24,7 +24,7 @@ public class TicketWindow : Interactable
     {
         _ticketPurchased = true;
         PlayerStats.i.Money -= _ticketCost;
-        GameManager.i.CurrentTrain.OpenDoor();
+        GameManager.i.CurrentStation.OpenDoor();
         enabled = false;
     }
 }

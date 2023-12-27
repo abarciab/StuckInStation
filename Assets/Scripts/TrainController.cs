@@ -1,3 +1,4 @@
+using MyBox;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,12 +7,19 @@ public class TrainController : MonoBehaviour
 {
     [SerializeField] private GameObject _ramp;
     [SerializeField] private GameObject _door;
-    [SerializeField] private bool _inStation;
 
-    private void Update()
+    [ButtonMethod]
+    private void Arrive()
     {
-        if (_inStation) GameManager.i.CurrentTrain = this;
-        else if (GameManager.i.CurrentTrain == this) GameManager.i.CurrentTrain = null;
+        GameManager.i.CurrentStation.TrainEnter(this);
+        gameObject.SetActive(true);
+    }
+
+    [ButtonMethod]
+    private void Leave()
+    {
+        GameManager.i.CurrentStation.TrainLeave();
+        gameObject.SetActive(false);
     }
 
     public void OpenDoor()

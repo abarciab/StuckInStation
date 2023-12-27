@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject pauseMenu;
     [SerializeField] Fade fade;
     [SerializeField] MusicPlayer music;
+    public StationController CurrentStation;
 
     [HideInInspector] public TrainController CurrentTrain;
     private CameraController _cameraController;
