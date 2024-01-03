@@ -7,13 +7,15 @@ public class Note
 {
     [HideInInspector] public string Name;
     public float Time;
-    public int StringID;
     [HideInInspector] public bool Spawned;
+    public string NoteCode;
 
-    public Note(float time, int stringID)
+    public Note(float time, string noteCode)
     {
         Time = time;
-        StringID = stringID;
-        Name = time + ": " + stringID;
+        Name = time + ": " + noteCode;
+        NoteCode = noteCode;
     }
+
+    public int StringID => Mathf.FloorToInt(float.Parse(NoteCode.Split(".")[0]));
 }

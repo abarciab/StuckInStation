@@ -188,4 +188,8 @@ public class Sound : ScriptableObject
         source.pitch = clip.pitch;
         source.loop = clip.looping;
     }
+
+    public void Kill() {
+        if (instantialized) Destroy(audioSource);
+    }
 }

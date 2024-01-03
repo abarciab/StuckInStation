@@ -26,8 +26,7 @@ public class BuskingStation : Interactable
     [SerializeField] private float _ceiling = 310;
 
     [Header("Current")]
-    [SerializeField] private TextAsset _currentSongNotes;
-    [SerializeField] private Sound currentSong;
+    [SerializeField] private Song _currentSong;
 
     [Header("Keys")]
     [SerializeField] private KeyCode _key1 = KeyCode.A;
@@ -51,10 +50,11 @@ public class BuskingStation : Interactable
     protected override void Start()
     {
         base.Start();
+        _currentSong = Instantiate(_currentSong);
 
         _mainCamera = FindObjectOfType<CameraController>();
         for (int i = 0; i < _sounds.Count; i++) _sounds[i] = Instantiate(_sounds[i]);
-        currentSong = Instantiate(currentSong);
+        _currentSong.SongAudio = Instantiate(_currentSong.SongAudio);
         _failSound = Instantiate(_failSound);
 
         ParseNotesFile();
@@ -64,13 +64,13 @@ public class BuskingStation : Interactable
 
     private void ParseNotesFile()
     {
-        var lines = _currentSongNotes.text.Split("\n");
+        var lines = _currentSong.EncodedNotesFile.text.Split("\n");
         _notes = new List<Note>();
         foreach (var line in lines) {
             var data = line.Split(",");
             float time = float.Parse(data[0]);
             for (int i = 1; i < data.Length; i++) {
-                _notes.Add(new Note(time, int.Parse(data[i])));
+                _notes.Add(new Note(time, data[i]));
             }
         }
         _notes = _notes.OrderBy(x => x.Time).ToList();
@@ -103,7 +103,7 @@ public class BuskingStation : Interactable
             if (_spawnedNotes[i] != null && _spawnedNotes[i].gameObject.name.Contains("TEST")) {
                 _spawnedNotes[i].localPosition += Vector3.down * _noteSpeed * Time.deltaTime;
                 if (_spawnedNotes[i].localPosition.y < _floor + 11) {
-                    currentSong.Play(); 
+                    _currentSong.SongAudio.Play(); 
                     Destroy(_spawnedNotes[i].gameObject);
                     _spawnedNotes.RemoveAt(i);
                     print("time: " + _runTime);
@@ -113,20 +113,19 @@ public class BuskingStation : Interactable
 
 
             if (_spawnedNotes[i] == null) _spawnedNotes.RemoveAt(i);
-            //else if (_spawnedNotes[i].localPosition.y < _floor + 11) AutoPlayNote(i);
+            else if (_spawnedNotes[i].localPosition.y < _floor + 11) AutoPlayNote(i);
+            
             else if (_spawnedNotes[i].localPosition.y < _floor) MissNote(i);
             else _spawnedNotes[i].localPosition += Vector3.down * _noteSpeed * Time.deltaTime;
         }
     }
 
-    private void AutoPlayNote(int index)
+    private void AutoPlayNote(int spawnedNoteIndex)
     {
-        int noteIndex = 0;
-        var spawnedNote = _spawnedNotes[index];
-        if (spawnedNote.parent == _spawnPoints[1]) noteIndex = 1;
-        if (spawnedNote.parent == _spawnPoints[2]) noteIndex = 2;
-        if (spawnedNote.parent == _spawnPoints[3]) noteIndex = 3;
-        _sounds[noteIndex].PlayOneShot();
+        var spawnedNote = _spawnedNotes[spawnedNoteIndex];
+        string index = spawnedNote.name;
+        Sound note = _currentSong.GetSoundByIndex(index);
+        note.PlayOneShot();
 
         Destroy(spawnedNote.gameObject);
     }
@@ -148,6 +147,7 @@ public class BuskingStation : Interactable
     private void SpawnNewNote(Note note)
     {
         var newNote = Instantiate(_notePrefab, _spawnPoints[note.StringID]);
+        newNote.gameObject.name = note.NoteCode;
         newNote.transform.localPosition = Vector3.zero;
         _spawnedNotes.Add(newNote.transform);
         note.Spawned = true;
@@ -228,7 +228,7 @@ public class BuskingStation : Interactable
 
     private void SendTestNote()
     {
-        SpawnNewNote(new Note(0, 0));
+        SpawnNewNote(new Note(0, "0.0"));
         _spawnedNotes[0].gameObject.name = "TEST";
     }
 
